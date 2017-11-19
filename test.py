@@ -42,12 +42,10 @@ mqtt.subscribe("lhd/#")
 mqtt.message_callback_add("lhd/message", on_message)
 mqtt.message_callback_add("lhd/three", on_three)
 mqtt.message_callback_add("lhd/unimportant", on_unimportant)
-
 oldheadline = ''
 url = 'http://feeds.bbci.co.uk/news/rss.xml?edition=uk'
 
 print "* Looping"
-#mqtt.loop_start()
 
 while 1:
     now = datetime.datetime.now()
@@ -56,19 +54,10 @@ while 1:
     if (secs == 0 or oldheadline == ''):
         feed = feedparser.parse(url)
         chl = feed.entries[0]['title']
+        chl = re.sub(r'[^\w\s]','',chl)
         if (chl != oldheadline):
+            print chl
             oldheadline = chl
-            with canvas(device) as draw:
-                text(draw, (0,0), "BBC NEWS", fill="white", font=proportional(LCD_FONT))
-                time.sleep (1)
-                text(draw, (0,0), "", fill="white", font=proportional(LCD_FONT))
-                time.sleep (1)
-                text(draw, (0,0), "BBC NEWS", fill="white", font=proportional(LCD_FONT))
-                time.sleep (1)
-                text(draw, (0,0), "", fill="white", font=proportional(LCD_FONT))
-                time.sleep (1)
-                text(draw, (0,0), "BBC NEWS", fill="white", font=proportional(LCD_FONT))
-                time.sleep (1)
             show_message(device, chl, fill="white", font=proportional(LCD_FONT))
 
     msg = now.strftime("%H:%M")
