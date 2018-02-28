@@ -37,7 +37,7 @@ def on_unimportant(mqttc, obj, mqmsg):
 
 mqtt = paho.Client()
 #mqtt.on_message = on_message
-mqtt.connect("192.168.101.15", 1883)
+mqtt.connect("192.168.105.3", 1883)
 mqtt.subscribe("lhd/#")
 mqtt.message_callback_add("lhd/message", on_message)
 mqtt.message_callback_add("lhd/three", on_three)
@@ -52,14 +52,17 @@ while 1:
     secs = int(time.time()-(int(time.time()/60)*60))
 
     if (secs == 0 or oldheadline == ''):
-        feed = feedparser.parse(url)
-        chl = feed.entries[0]['title']
-        chl = re.sub(r'[^\w\s]','',chl)
-        if (chl != oldheadline):
-            print chl
-            oldheadline = chl
+        try:
+            feed = feedparser.parse(url)
+            chl = feed.entries[0]['title']
+            chl = re.sub(r'[^\w\s]','',chl)
+            if (chl != oldheadline):
+                print chl
+                oldheadline = chl
+                show_message(device, chl, fill="white", font=proportional(LCD_FONT))
+        except:
+            chl = "Can't retrieve headline. Is the internet down?"
             show_message(device, chl, fill="white", font=proportional(LCD_FONT))
-
     msg = now.strftime("%H:%M")
     mqtt.loop(0.5)
     with canvas(device) as draw:
